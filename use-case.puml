@@ -1,0 +1,61 @@
+@startuml
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+left to right direction
+
+actor "Admin" as admin
+
+rectangle "Sistem Inventaris Sparepart Zoiez Motor" {
+    ' Authentication
+    usecase "UC-01: Login" as UC_Login
+    usecase "UC-02: Logout" as UC_Logout
+    
+    ' Dashboard & Info
+    usecase "UC-03: Lihat Dashboard" as UC_Dashboard
+    usecase "UC-12: Lihat Notifikasi Stok Menipis" as UC_Notifikasi
+    
+    ' Master Data Kategori
+    usecase "UC-04: Tambah Kategori" as UC_AddKategori
+    usecase "UC-05: Edit Kategori" as UC_EditKategori
+    usecase "UC-06: Hapus Kategori" as UC_DeleteKategori
+    
+    ' Master Data Sparepart
+    usecase "UC-07: Tambah Sparepart" as UC_AddSparepart
+    usecase "UC-08: Edit Sparepart" as UC_EditSparepart
+    usecase "UC-09: Hapus Sparepart" as UC_DeleteSparepart
+    
+    ' Transactions & Automation
+    usecase "UC-10: Catat Barang Masuk" as UC_BarangMasuk
+    usecase "UC-11: Catat Barang Keluar" as UC_BarangKeluar
+    
+    usecase "Kalkulasi / Update Stok" as UC_UpdateStok
+    usecase "Cek Ketersediaan Stok" as UC_CekStok
+    
+    ' Reports
+    usecase "UC-13: Lihat Laporan (Filter Tanggal)" as UC_Laporan
+}
+
+' Actor Associations
+admin --> UC_Login
+admin --> UC_Logout
+admin --> UC_Dashboard
+admin --> UC_Notifikasi
+
+admin --> UC_AddKategori
+admin --> UC_EditKategori
+admin --> UC_DeleteKategori
+
+admin --> UC_AddSparepart
+admin --> UC_EditSparepart
+admin --> UC_DeleteSparepart
+
+admin --> UC_BarangMasuk
+admin --> UC_BarangKeluar
+admin --> UC_Laporan
+
+' Relationships between Use Cases
+UC_BarangMasuk ..> UC_UpdateStok : <<include>>
+UC_BarangKeluar ..> UC_UpdateStok : <<include>>
+UC_BarangKeluar ..> UC_CekStok : <<include>>
+
+@endum

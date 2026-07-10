@@ -55,7 +55,13 @@ class SparepartController extends Controller
         }
         $defaultCode = 'SP-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
-        return view('sparepart.create', compact('categories', 'defaultCode'));
+        // Fetch all unique existing sparepart names for autocomplete suggestions
+        $existingNames = Sparepart::select('nama_sparepart')
+            ->distinct()
+            ->orderBy('nama_sparepart', 'asc')
+            ->pluck('nama_sparepart');
+
+        return view('sparepart.create', compact('categories', 'defaultCode', 'existingNames'));
     }
 
     public function store(Request $request)

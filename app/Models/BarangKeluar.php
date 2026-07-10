@@ -12,6 +12,7 @@ class BarangKeluar extends Model
     protected $fillable = [
         'sparepart_id',
         'jumlah',
+        'atas_nama',
         'tanggal',
         'keterangan',
     ];

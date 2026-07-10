@@ -1,0 +1,96 @@
+@startuml
+autonumber
+actor Admin
+boundary KategoriView
+control KategoriController
+entity KategoriModel
+database Database
+
+title Sequence Diagram - Kelola Kategori (CRUD)
+
+== 1. TAMPILKAN DAFTAR KATEGORI (READ) ==
+Admin -> KategoriView : Buka Halaman Kategori
+KategoriView -> KategoriController : GET /kategori
+activate KategoriController
+KategoriController -> KategoriModel : all()
+activate KategoriModel
+KategoriModel -> Database : SELECT * FROM kategoris
+activate Database
+Database --> KategoriModel : Array data kategori
+deactivate Database
+KategoriModel --> KategoriController : Koleksi kategori
+deactivate KategoriModel
+KategoriController --> KategoriView : Render halaman daftar kategori
+deactivate KategoriController
+KategoriView --> Admin : Tampilkan tabel kategori
+
+== 2. TAMBAH KATEGORI (CREATE) ==
+Admin -> KategoriView : Isi Form Tambah & Klik "Simpan"
+KategoriView -> KategoriController : POST /kategori (nama_kategori, deskripsi)
+activate KategoriController
+KategoriController -> KategoriController : Validasi input nama_kategori (required)
+alt Validasi Gagal
+    KategoriController --> KategoriView : Redirect back dengan error
+    KategoriView --> Admin : Tampilkan error di form
+else Validasi Sukses
+    KategoriController -> KategoriModel : create(input)
+    activate KategoriModel
+    KategoriModel -> Database : INSERT INTO kategoris
+    activate Database
+    Database --> KategoriModel : Success
+    deactivate Database
+    KategoriModel --> KategoriController : instance kategori
+    deactivate KategoriModel
+    KategoriController --> KategoriView : Redirect ke /kategori dengan Flash Message Sukses
+    deactivate KategoriController
+    KategoriView --> Admin : Tampilkan alert sukses & data baru
+end
+
+== 3. EDIT KATEGORI (UPDATE) ==
+Admin -> KategoriView : Klik "Edit" -> Ubah form -> Klik "Update"
+KategoriView -> KategoriController : PUT /kategori/{id} (nama_kategori, deskripsi)
+activate KategoriController
+KategoriController -> KategoriController : Validasi input
+alt Validasi Gagal
+    KategoriController --> KategoriView : Redirect back dengan error
+else Validasi Sukses
+    KategoriController -> KategoriModel : find(id)->update(input)
+    activate KategoriModel
+    KategoriModel -> Database : UPDATE kategoris SET ... WHERE id = id
+    activate Database
+    Database --> KategoriModel : Success
+    deactivate Database
+    KategoriModel --> KategoriController : Success
+    deactivate KategoriModel
+    KategoriController --> KategoriView : Redirect ke /kategori dengan Flash Message Sukses
+    deactivate KategoriController
+    KategoriView --> Admin : Tampilkan alert sukses & data terupdate
+end
+
+== 4. HAPUS KATEGORI (DELETE) ==
+Admin -> KategoriView : Klik tombol "Hapus"
+KategoriView -> KategoriController : DELETE /kategori/{id}
+activate KategoriController
+KategoriController -> Database : SELECT COUNT(*) FROM spareparts WHERE kategori_id = id
+activate Database
+Database --> KategoriController : Jumlah sparepart terhubung
+deactivate Database
+
+alt Ada Sparepart yang Terhubung
+    KategoriController --> KategoriView : Redirect back dengan error "Masih digunakan!"
+    KategoriView --> Admin : Tampilkan alert gagal hapus
+else Tidak Ada Sparepart Terhubung
+    KategoriController -> KategoriModel : find(id)->delete()
+    activate KategoriModel
+    KategoriModel -> Database : DELETE FROM kategoris WHERE id = id
+    activate Database
+    Database --> KategoriModel : Success
+    deactivate Database
+    KategoriModel --> KategoriController : Success
+    deactivate KategoriModel
+    KategoriController --> KategoriView : Redirect ke /kategori dengan Flash Message Sukses
+    deactivate KategoriController
+    KategoriView --> Admin : Tampilkan alert sukses & tabel diperbarui
+end
+
+@endum

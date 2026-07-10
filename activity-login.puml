@@ -1,0 +1,40 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Login Admin
+
+|Admin|
+start
+:Membuka Aplikasi;
+:Membuka Halaman Login;
+
+|Sistem|
+:Menampilkan Form Login;
+
+|Admin|
+:Memasukkan Email & Password;
+:Klik Tombol Login;
+
+|Sistem|
+if (Apakah Form Valid?\n(Format Email & Input Tidak Kosong)) then (Tidak)
+    :Menampilkan Pesan Validasi Error;
+    detach
+else (Ya)
+    :Memverifikasi Kredensial dengan Database;
+    if (Apakah Kredensial Benar?) then (Tidak)
+        :Menampilkan Pesan Error\n"Email atau password salah";
+        detach
+    else (Ya)
+        :Membuat Sesi (Session) Aktif;
+        :Mengarahkan (Redirect) ke Dashboard;
+        |Admin|
+        :Melihat Dashboard Statistik;
+        stop
+    endif
+endif
+
+@endum

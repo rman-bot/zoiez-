@@ -1,0 +1,86 @@
+@startuml
+autonumber
+actor Admin
+boundary SparepartView
+control SparepartController
+entity SparepartModel
+database Database
+
+title Sequence Diagram - Kelola Sparepart (CRUD)
+
+== 1. TAMPILKAN DAFTAR SPAREPART (READ) ==
+Admin -> SparepartView : Buka Halaman Sparepart
+SparepartView -> SparepartController : GET /sparepart
+activate SparepartController
+SparepartController -> SparepartModel : with('kategori')->get()
+activate SparepartModel
+SparepartModel -> Database : SELECT * FROM spareparts (join kategoris)
+activate Database
+Database --> SparepartModel : Array data sparepart + kategori
+deactivate Database
+SparepartModel --> SparepartController : Koleksi sparepart
+deactivate SparepartModel
+SparepartController --> SparepartView : Render halaman daftar sparepart
+deactivate SparepartController
+SparepartView --> Admin : Tampilkan tabel sparepart dengan indikator stok
+
+== 2. TAMBAH SPAREPART (CREATE) ==
+Admin -> SparepartView : Klik "Tambah", Isi Form & Klik "Simpan"
+SparepartView -> SparepartController : POST /sparepart (kode, nama, kategori_id, harga_beli, dll)
+activate SparepartController
+SparepartController -> SparepartController : Validasi input (kode unik,required field)
+alt Validasi Gagal
+    SparepartController --> SparepartView : Redirect back dengan error
+    SparepartView --> Admin : Tampilkan error di form
+else Validasi Sukses
+    SparepartController -> SparepartModel : create(input)
+    activate SparepartModel
+    SparepartModel -> Database : INSERT INTO spareparts
+    activate Database
+    Database --> SparepartModel : Success
+    deactivate Database
+    SparepartModel --> SparepartController : instance sparepart
+    deactivate SparepartModel
+    SparepartController --> SparepartView : Redirect ke /sparepart dengan Flash Message Sukses
+    deactivate SparepartController
+    SparepartView --> Admin : Tampilkan alert sukses & data baru di tabel
+end
+
+== 3. EDIT SPAREPART (UPDATE) ==
+Admin -> SparepartView : Klik "Edit" -> Ubah form -> Klik "Update"
+SparepartView -> SparepartController : PUT /sparepart/{id} (nama, kategori_id, harga_beli, dll)
+activate SparepartController
+SparepartController -> SparepartController : Validasi input
+alt Validasi Gagal
+    SparepartController --> SparepartView : Redirect back dengan error
+else Validasi Sukses
+    SparepartController -> SparepartModel : find(id)->update(input)
+    activate SparepartModel
+    SparepartModel -> Database : UPDATE spareparts SET ... WHERE id = id
+    activate Database
+    Database --> SparepartModel : Success
+    deactivate Database
+    SparepartModel --> SparepartController : Success
+    deactivate SparepartModel
+    SparepartController --> SparepartView : Redirect ke /sparepart dengan Flash Message Sukses
+    deactivate SparepartController
+    SparepartView --> Admin : Tampilkan alert sukses & data terupdate
+end
+
+== 4. HAPUS SPAREPART (DELETE) ==
+Admin -> SparepartView : Klik tombol "Hapus"
+SparepartView -> SparepartController : DELETE /sparepart/{id}
+activate SparepartController
+SparepartController -> SparepartModel : find(id)->delete()
+activate SparepartModel
+SparepartModel -> Database : DELETE FROM spareparts WHERE id = id
+activate Database
+Database --> SparepartModel : Success
+deactivate Database
+SparepartModel --> SparepartController : Success
+deactivate SparepartModel
+SparepartController --> SparepartView : Redirect ke /sparepart dengan Flash Message Sukses
+deactivate SparepartController
+SparepartView --> Admin : Tampilkan alert sukses & tabel diperbarui
+
+@endum

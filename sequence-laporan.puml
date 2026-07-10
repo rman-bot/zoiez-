@@ -1,0 +1,52 @@
+@startuml
+autonumber
+actor Admin
+boundary LaporanView
+control LaporanController
+entity BarangMasukModel
+entity BarangKeluarModel
+database Database
+
+title Sequence Diagram - Lihat Laporan (Filter Tanggal)
+
+Admin -> LaporanView : Mengisi Form Filter (Tanggal Mulai, Tanggal Selesai, Jenis Transaksi)
+Admin -> LaporanView : Klik tombol "Filter"
+LaporanView -> LaporanController : GET /laporan (tanggal_mulai, tanggal_selesai, jenis)
+activate LaporanController
+
+LaporanController -> LaporanController : Validasi format tanggal & parameter input
+
+alt Parameter Tidak Valid
+    LaporanController --> LaporanView : Redirect back dengan pesan error
+    LaporanView --> Admin : Tampilkan alert error validasi
+else Parameter Valid
+    alt Jenis Transaksi == 'masuk' ATAU 'semua'
+        LaporanController -> BarangMasukModel : whereBetween('tanggal', [mulai, selesai])->get()
+        activate BarangMasukModel
+        BarangMasukModel -> Database : SELECT * FROM barang_masuk WHERE tanggal BETWEEN mulai AND selesai
+        activate Database
+        Database --> BarangMasukModel : Record barang masuk
+        deactivate Database
+        BarangMasukModel --> LaporanController : Data barang masuk
+        deactivate BarangMasukModel
+    end
+    
+    alt Jenis Transaksi == 'keluar' ATAU 'semua'
+        LaporanController -> BarangKeluarModel : whereBetween('tanggal', [mulai, selesai])->get()
+        activate BarangKeluarModel
+        BarangKeluarModel -> Database : SELECT * FROM barang_keluar WHERE tanggal BETWEEN mulai AND selesai
+        activate Database
+        Database --> BarangKeluarModel : Record barang keluar
+        deactivate Database
+        BarangKeluarModel --> LaporanController : Data barang keluar
+        deactivate BarangKeluarModel
+    end
+    
+    LaporanController -> LaporanController : Gabungkan & urutkan (sort) data berdasarkan tanggal
+    
+    LaporanController --> LaporanView : Render /laporan dengan data transaksi terfilter
+    deactivate LaporanController
+    LaporanView --> Admin : Tampilkan tabel rekapitulasi data transaksi sesuai filter
+end
+
+@endum

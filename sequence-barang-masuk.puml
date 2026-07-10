@@ -1,0 +1,51 @@
+@startuml
+autonumber
+actor Admin
+boundary BarangMasukView
+control BarangMasukController
+entity BarangMasukModel
+entity SparepartModel
+database Database
+
+title Sequence Diagram - Pencatatan Barang Masuk
+
+Admin -> BarangMasukView : Mengisi Form Input (Sparepart, Jumlah, Tanggal, Keterangan)
+Admin -> BarangMasukView : Klik tombol "Simpan"
+BarangMasukView -> BarangMasukController : POST /barang-masuk
+activate BarangMasukController
+
+BarangMasukController -> BarangMasukController : Validasi parameter input
+alt Validasi Gagal
+    BarangMasukController --> BarangMasukView : Redirect back dengan pesan error
+    BarangMasukView --> Admin : Tampilkan pesan error di form
+else Validasi Sukses
+    BarangMasukController -> Database : Memulai DB Transaction
+    activate Database
+    
+    BarangMasukController -> BarangMasukModel : create([sparepart_id, jumlah, tanggal, keterangan])
+    activate BarangMasukModel
+    BarangMasukModel -> Database : INSERT INTO barang_masuk
+    Database --> BarangMasukModel : Success (simpan log)
+    BarangMasukModel --> BarangMasukController : instance barang masuk
+    deactivate BarangMasukModel
+    
+    BarangMasukController -> SparepartModel : find(sparepart_id)
+    activate SparepartModel
+    SparepartModel -> Database : SELECT stok FROM spareparts WHERE id = sparepart_id
+    Database --> SparepartModel : Data Sparepart
+    
+    BarangMasukController -> SparepartModel : update(['stok' => stok + jumlah])
+    SparepartModel -> Database : UPDATE spareparts SET stok = stok + jumlah
+    Database --> SparepartModel : Success (update stok)
+    SparepartModel --> BarangMasukController : Success
+    deactivate SparepartModel
+    
+    BarangMasukController -> Database : Commit DB Transaction
+    deactivate Database
+    
+    BarangMasukController --> BarangMasukView : Redirect ke /barang-masuk dengan Flash Message Sukses
+    deactivate BarangMasukController
+    BarangMasukView --> Admin : Render tabel log barang masuk + Alert Sukses
+end
+
+@endum

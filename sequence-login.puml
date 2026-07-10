@@ -1,0 +1,36 @@
+@startuml
+autonumber
+actor Admin
+boundary LoginView
+control AuthController
+database Database
+
+title Sequence Diagram - Login Admin
+
+Admin -> LoginView : Akses /login & Input email & password
+Admin -> LoginView : Klik tombol "Login"
+LoginView -> AuthController : POST /login (email, password)
+activate AuthController
+
+AuthController -> AuthController : Validasi format input
+alt Form Input Tidak Valid
+    AuthController --> LoginView : Redirect back with validation errors
+    LoginView --> Admin : Tampilkan pesan error validasi
+else Form Input Valid
+    AuthController -> Database : Query User berdasarkan email
+    activate Database
+    Database --> AuthController : User record / null
+    deactivate Database
+    
+    alt User Tidak Ditemukan / Password Salah (Bcrypt Hash tidak cocok)
+        AuthController --> LoginView : Redirect back with credentials error
+        LoginView --> Admin : Tampilkan "Email atau password salah"
+    else Kredensial Benar
+        AuthController -> AuthController : Buat Sesi (Session) login
+        AuthController --> LoginView : Redirect ke /dashboard
+        deactivate AuthController
+        LoginView -> Admin : Render halaman Dashboard Statistik
+    end
+end
+
+@endum

@@ -1,0 +1,114 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+title Class Diagram (Laravel MVC Architecture) - Zoiez Motor
+
+package "Http/Controllers" {
+    class Controller {
+    }
+    class AuthController {
+        + showLogin() : View
+        + login(Request $request) : Redirect
+        + logout() : Redirect
+    }
+    class DashboardController {
+        + index() : View
+    }
+    class KategoriController {
+        + index() : View
+        + create() : View
+        + store(Request $request) : Redirect
+        + edit(Kategori $kategori) : View
+        + update(Request $request, Kategori $kategori) : Redirect
+        + destroy(Kategori $kategori) : Redirect
+    }
+    class SparepartController {
+        + index() : View
+        + create() : View
+        + store(Request $request) : Redirect
+        + edit(Sparepart $sparepart) : View
+        + update(Request $request, Sparepart $sparepart) : Redirect
+        + destroy(Sparepart $sparepart) : Redirect
+    }
+    class BarangMasukController {
+        + index() : View
+        + create() : View
+        + store(Request $request) : Redirect
+    }
+    class BarangKeluarController {
+        + index() : View
+        + create() : View
+        + store(Request $request) : Redirect
+    }
+    class LaporanController {
+        + index(Request $request) : View
+    }
+}
+
+package "Models" {
+    class User {
+        + name : string
+        + email : string
+        + password : string
+    }
+    class Kategori {
+        + nama_kategori : string
+        + deskripsi : string
+        + spareparts() : HasMany
+    }
+    class Sparepart {
+        + kategori_id : bigint
+        + kode_sparepart : string
+        + nama_sparepart : string
+        + merk : string
+        + satuan : string
+        + harga_beli : float
+        + harga_jual : float
+        + stok : int
+        + stok_minimal : int
+        + keterangan : string
+        + kategori() : BelongsTo
+        + barangMasuk() : HasMany
+        + barangKeluar() : HasMany
+    }
+    class BarangMasuk {
+        + sparepart_id : bigint
+        + jumlah : int
+        + tanggal : date
+        + keterangan : string
+        + sparepart() : BelongsTo
+    }
+    class BarangKeluar {
+        + sparepart_id : bigint
+        + jumlah : int
+        + tanggal : date
+        + keterangan : string
+        + sparepart() : BelongsTo
+    }
+}
+
+Controller <|-- AuthController
+Controller <|-- DashboardController
+Controller <|-- KategoriController
+Controller <|-- SparepartController
+Controller <|-- BarangMasukController
+Controller <|-- BarangKeluarController
+Controller <|-- LaporanController
+
+Kategori "1" *-- "many" Sparepart : spareparts
+Sparepart "1" *-- "many" BarangMasuk : barangMasuk
+Sparepart "1" *-- "many" BarangKeluar : barangKeluar
+
+AuthController ..> User : authenticates
+DashboardController ..> Sparepart : queries
+KategoriController ..> Kategori : CRUD
+SparepartController ..> Sparepart : CRUD
+SparepartController ..> Kategori : dropdown options
+BarangMasukController ..> BarangMasuk : stores
+BarangMasukController ..> Sparepart : updates stock
+BarangKeluarController ..> BarangKeluar : stores
+BarangKeluarController ..> Sparepart : checks & updates stock
+LaporanController ..> BarangMasuk : filters
+LaporanController ..> BarangKeluar : filters
+
+@endum

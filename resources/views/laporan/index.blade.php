@@ -228,7 +228,12 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-bold text-slate-900">{{ $tx->sparepart->nama_sparepart }}</div>
-                                    <div class="text-xs text-slate-400">{{ $tx->sparepart->kode_sparepart }} &bull; {{ $tx->sparepart->kategori->nama_kategori }}</div>
+                                    <div class="text-xs text-slate-400">
+                                        {{ $tx->sparepart->kode_sparepart }} &bull; {{ $tx->sparepart->kategori->nama_kategori }}
+                                        @if($tx->jenis === 'Keluar' && $tx->atas_nama)
+                                            &bull; <span class="text-blue-600 font-semibold">A.n. {{ $tx->atas_nama }}</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider print:border print:border-slate-300 {{ $tx->badge_color }}">

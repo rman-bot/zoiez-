@@ -33,6 +33,7 @@
                             <th scope="col" class="px-6 py-4 text-left">Kode</th>
                             <th scope="col" class="px-6 py-4 text-left">Nama Sparepart</th>
                             <th scope="col" class="px-6 py-4 text-left">Kategori</th>
+                            <th scope="col" class="px-6 py-4 text-left">Atas Nama</th>
                             <th scope="col" class="px-6 py-4 text-center">Jumlah Keluar</th>
                             <th scope="col" class="px-6 py-4 text-left rounded-r-lg">Keterangan</th>
                         </tr>
@@ -46,6 +47,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700">{{ $log->sparepart->kode_sparepart }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{{ $log->sparepart->nama_sparepart }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $log->sparepart->kategori->nama_kategori }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700">{{ $log->atas_nama ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-rose-600 bg-rose-50/50 rounded-lg">
                                     -{{ $log->jumlah }} {{ $log->sparepart->satuan }}
                                 </td>

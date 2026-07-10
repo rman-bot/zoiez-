@@ -32,32 +32,59 @@ class BarangKeluarController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'sparepart_id' => 'required|exists:spareparti,id',
-            'jumlah' => 'required|integer|min:1',
+            'atas_nama' => 'required|string|max:150',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.sparepart_id' => 'required|exists:spareparti,id',
+            'items.*.jumlah' => 'required|integer|min:1',
+        ], [
+            'atas_nama.required' => 'Kolom Atas Nama wajib diisi.',
+            'items.required' => 'Minimal harus ada satu sparepart yang dipilih.',
+            'items.*.sparepart_id.required' => 'Pilih sparepart terlebih dahulu.',
+            'items.*.jumlah.required' => 'Jumlah keluar harus diisi.',
+            'items.*.jumlah.min' => 'Jumlah keluar minimal 1.',
         ]);
 
-        $sparepart = Sparepart::findOrFail($request->sparepart_id);
+        $items = $request->input('items', []);
 
-        // Validation rule: Outgoing quantity cannot exceed current stock
-        if ($request->jumlah > $sparepart->stok) {
-            return back()->withErrors([
-                'jumlah' => "Stok tidak mencukupi. Stok saat ini untuk {$sparepart->nama_sparepart} adalah {$sparepart->stok} {$sparepart->satuan}.",
-            ])->withInput();
+        // Validate stock availability for each sparepart (aggregating duplicates if any)
+        $groupedQuantities = [];
+        foreach ($items as $item) {
+            $spId = $item['sparepart_id'];
+            $qty = (int)$item['jumlah'];
+            if (!isset($groupedQuantities[$spId])) {
+                $groupedQuantities[$spId] = 0;
+            }
+            $groupedQuantities[$spId] += $qty;
         }
 
-        DB::transaction(function () use ($request, $sparepart) {
-            // 1. Create transaction log
-            BarangKeluar::create([
-                'sparepart_id' => $request->sparepart_id,
-                'jumlah' => $request->jumlah,
-                'tanggal' => $request->tanggal,
-                'keterangan' => $request->keterangan,
-            ]);
+        foreach ($groupedQuantities as $spId => $totalQty) {
+            $sparepart = Sparepart::findOrFail($spId);
+            if ($totalQty > $sparepart->stok) {
+                return back()->withErrors([
+                    'items' => "Stok tidak mencukupi. Total pengeluaran untuk {$sparepart->nama_sparepart} adalah {$totalQty} {$sparepart->satuan}, sedangkan stok saat ini hanya {$sparepart->stok} {$sparepart->satuan}."
+                ])->withInput();
+            }
+        }
 
-            // 2. Decrement stock in spareparti
-            $sparepart->decrement('stok', $request->jumlah);
+        // Save multiple spareparts in a transaction
+        DB::transaction(function () use ($request, $items) {
+            foreach ($items as $item) {
+                $sparepart = Sparepart::findOrFail($item['sparepart_id']);
+
+                // 1. Create transaction log
+                BarangKeluar::create([
+                    'sparepart_id' => $item['sparepart_id'],
+                    'jumlah' => $item['jumlah'],
+                    'atas_nama' => $request->atas_nama,
+                    'tanggal' => $request->tanggal,
+                    'keterangan' => $request->keterangan,
+                ]);
+
+                // 2. Decrement stock
+                $sparepart->decrement('stok', $item['jumlah']);
+            }
         });
 
         return redirect()->route('barang-keluar.index')

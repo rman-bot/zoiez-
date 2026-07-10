@@ -1,0 +1,65 @@
+@startuml
+autonumber
+actor Admin
+boundary BarangKeluarView
+control BarangKeluarController
+entity BarangKeluarModel
+entity SparepartModel
+database Database
+
+title Sequence Diagram - Pencatatan Barang Keluar
+
+Admin -> BarangKeluarView : Mengisi Form Input (Sparepart, Jumlah, Tanggal, Keterangan)
+Admin -> BarangKeluarView : Klik tombol "Simpan"
+BarangKeluarView -> BarangKeluarController : POST /barang-keluar
+activate BarangKeluarController
+
+BarangKeluarController -> BarangKeluarController : Validasi parameter input
+alt Validasi Gagal
+    BarangKeluarController --> BarangKeluarView : Redirect back dengan pesan error
+    BarangKeluarView --> Admin : Tampilkan pesan error di form
+else Validasi Sukses
+    BarangKeluarController -> SparepartModel : find(sparepart_id)
+    activate SparepartModel
+    SparepartModel -> Database : SELECT stok, stok_minimal FROM spareparts WHERE id = sparepart_id
+    activate Database
+    Database --> SparepartModel : Data Sparepart
+    deactivate Database
+    SparepartModel --> BarangKeluarController : instance sparepart
+    deactivate SparepartModel
+    
+    alt Jumlah Keluar > Stok Tersedia
+        BarangKeluarController --> BarangKeluarView : Redirect back dengan error "Stok tidak mencukupi"
+        BarangKeluarView --> Admin : Tampilkan pesan "Stok tidak mencukupi"
+    else Jumlah Keluar <= Stok Tersedia
+        BarangKeluarController -> Database : Memulai DB Transaction
+        activate Database
+        
+        BarangKeluarController -> BarangKeluarModel : create([sparepart_id, jumlah, tanggal, keterangan])
+        activate BarangKeluarModel
+        BarangKeluarModel -> Database : INSERT INTO barang_keluar
+        Database --> BarangKeluarModel : Success (simpan log)
+        BarangKeluarModel --> BarangKeluarController : instance barang keluar
+        deactivate BarangKeluarModel
+        
+        BarangKeluarController -> SparepartModel : update(['stok' => stok - jumlah])
+        activate SparepartModel
+        SparepartModel -> Database : UPDATE spareparts SET stok = stok - jumlah
+        Database --> SparepartModel : Success (update stok)
+        SparepartModel --> BarangKeluarController : Success
+        deactivate SparepartModel
+        
+        BarangKeluarController -> Database : Commit DB Transaction
+        deactivate Database
+        
+        opt Stok Baru <= Stok Minimal
+            BarangKeluarController -> BarangKeluarController : Trigger visual warning (tampilkan badge merah & dashboard alert)
+        end
+        
+        BarangKeluarController --> BarangKeluarView : Redirect ke /barang-keluar dengan Flash Message Sukses
+        deactivate BarangKeluarController
+        BarangKeluarView --> Admin : Render tabel log barang keluar + Alert Sukses
+    end
+end
+
+@endum

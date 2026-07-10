@@ -1,0 +1,68 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Kelola Kategori (CRUD)
+
+|Admin|
+start
+:Membuka Halaman "Kategori";
+
+|Sistem|
+:Menampilkan Tabel Daftar Kategori;
+
+|Admin|
+if (Pilih Operasi == Tambah Kategori?) then (Ya)
+    :Klik Tombol "Tambah Kategori";
+    |Sistem|
+    :Menampilkan Form Tambah Kategori;
+    |Admin|
+    :Mengisi Nama Kategori & Deskripsi;
+    :Klik "Simpan";
+    |Sistem|
+    if (Form Valid?) then (Tidak)
+        :Tampilkan Pesan Validasi;
+        detach
+    else (Ya)
+        :Simpan Kategori ke Database;
+    endif
+elseif (Pilih Operasi == Edit Kategori?) then (Ya)
+    |Admin|
+    :Klik Tombol "Edit" pada Baris Kategori;
+    |Sistem|
+    :Menampilkan Form Edit Kategori dengan Data Terisi;
+    |Admin|
+    :Mengubah Data Kategori;
+    :Klik "Simpan";
+    |Sistem|
+    if (Form Valid?) then (Tidak)
+        :Tampilkan Pesan Validasi;
+        detach
+    else (Ya)
+        :Perbarui Data Kategori di Database;
+    endif
+elseif (Pilih Operasi == Hapus Kategori?) then (Ya)
+    |Admin|
+    :Klik Tombol "Hapus" pada Baris Kategori;
+    |Sistem|
+    :Memeriksa Apakah Ada Sparepart yang Terhubung?;
+    if (Ada?) then (Ya)
+        :Menampilkan Pesan Gagal Hapus\n"Kategori masih digunakan oleh sparepart!";
+        detach
+    else (Tidak)
+        :Menghapus Kategori dari Database;
+    endif
+else (Lihat Daftar Kategori)
+    |Sistem|
+    :Menampilkan Daftar Kategori;
+endif
+
+|Sistem|
+:Tampilkan Flash Message Sukses;
+:Redirect ke Halaman Kategori;
+stop
+
+@endum

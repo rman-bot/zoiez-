@@ -253,7 +253,12 @@
                     <td class="text-center">{{ $tx->tanggal->format('d/m/Y') }}</td>
                     <td>
                         <div class="bold">{{ $tx->sparepart->nama_sparepart }}</div>
-                        <div style="color: #666666; font-size: 8px;">{{ $tx->sparepart->kode_sparepart }} &bull; {{ $tx->sparepart->kategori->nama_kategori }}</div>
+                        <div style="color: #666666; font-size: 8px;">
+                            {{ $tx->sparepart->kode_sparepart }} &bull; {{ $tx->sparepart->kategori->nama_kategori }}
+                            @if($tx->jenis === 'Keluar' && $tx->atas_nama)
+                                &bull; <span style="color: #2563eb; font-weight: bold;">A.n. {{ $tx->atas_nama }}</span>
+                            @endif
+                        </div>
                     </td>
                     <td class="text-center">
                         @if($tx->jenis === 'Masuk')

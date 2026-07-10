@@ -1,0 +1,38 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Pencatatan Barang Masuk
+
+|Admin|
+start
+:Membuka Halaman Barang Masuk;
+:Klik Tombol "Tambah Barang Masuk";
+
+|Sistem|
+:Menampilkan Form Input Barang Masuk\n(Pilih Sparepart, Jumlah, Tanggal, Keterangan);
+
+|Admin|
+:Memilih Sparepart;
+:Memasukkan Jumlah (> 0), Tanggal, & Keterangan;
+:Klik Tombol "Simpan";
+
+|Sistem|
+if (Apakah Form Input Valid?) then (Tidak)
+    :Menampilkan Pesan Validasi Error;
+    detach
+else (Ya)
+    :Menyimpan Data Transaksi ke Tabel 'barang_masuk';
+    :Melakukan Kalkulasi Stok:\nStok Baru = Stok Lama + Jumlah Masuk;
+    :Memperbarui Nilai 'stok' di Tabel 'spareparti';
+    :Menampilkan Flash Message Sukses\n"Barang masuk berhasil dicatat";
+    :Mengarahkan ke Halaman Daftar Barang Masuk;
+    |Admin|
+    :Melihat Catatan Transaksi Baru;
+    stop
+endif
+
+@endum

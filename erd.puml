@@ -1,0 +1,71 @@
+@startuml
+!theme plain
+skinparam roundcorner 5
+skinparam linetype ortho
+
+title Entity Relationship Diagram (ERD) - Zoiez Motor
+
+entity "users" as users {
+  * id : BIGINT <<PK>> [AI]
+  --
+  * name : VARCHAR(100)
+  * email : VARCHAR(100) <<UNIQUE>>
+  * password : VARCHAR(255)
+  remember_token : VARCHAR(100)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "kategoris" as kategoris {
+  * id : BIGINT <<PK>> [AI]
+  --
+  * nama_kategori : VARCHAR(100)
+  deskripsi : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "spareparti" as spareparti {
+  * id : BIGINT <<PK>> [AI]
+  --
+  * kategori_id : BIGINT <<FK>>
+  * kode_sparepart : VARCHAR(50) <<UNIQUE>>
+  * nama_sparepart : VARCHAR(150)
+  merk : VARCHAR(100)
+  * satuan : VARCHAR(30)
+  * harga_beli : DECIMAL(15,2)
+  * harga_jual : DECIMAL(15,2)
+  * stok : INT [DEFAULT 0]
+  * stok_minimal : INT [DEFAULT 5]
+  keterangan : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "barang_masuk" as barang_masuk {
+  * id : BIGINT <<PK>> [AI]
+  --
+  * sparepart_id : BIGINT <<FK>>
+  * jumlah : INT
+  * tanggal : DATE
+  keterangan : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "barang_keluar" as barang_keluar {
+  * id : BIGINT <<PK>> [AI]
+  --
+  * sparepart_id : BIGINT <<FK>>
+  * jumlah : INT
+  * tanggal : DATE
+  keterangan : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+kategoris ||--|{ spareparti : "kategori_id -> id"
+spareparti ||--|{ barang_masuk : "sparepart_id -> id"
+spareparti ||--|{ barang_keluar : "sparepart_id -> id"
+
+@endum

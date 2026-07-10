@@ -34,11 +34,16 @@
                 </div>
 
                 <!-- Sparepart Name -->
-                <div>
+                <div class="relative">
                     <label for="nama_sparepart" class="block text-sm font-semibold text-slate-700 mb-2">Nama Sparepart <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_sparepart" id="nama_sparepart" required value="{{ old('nama_sparepart') }}"
-                        class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl py-3 px-4 text-sm text-slate-800 focus:outline-none transition-all"
-                        placeholder="Contoh: Kampas Rem Depan Beat">
+                    <div class="relative">
+                        <input type="text" name="nama_sparepart" id="nama_sparepart" required value="{{ old('nama_sparepart') }}" autocomplete="off"
+                            class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-xl py-3 px-4 text-sm text-slate-800 focus:outline-none transition-all"
+                            placeholder="Contoh: Kampas Rem Depan Beat">
+                        
+                        <!-- Autocomplete suggestions dropdown -->
+                        <div id="autocomplete-suggestions" class="hidden absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg focus:outline-none"></div>
+                    </div>
                 </div>
 
                 <!-- Category -->
@@ -176,5 +181,119 @@ function previewImage(event) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('nama_sparepart');
+    const suggestionsContainer = document.getElementById('autocomplete-suggestions');
+    const existingNames = @json($existingNames ?? []);
+    let currentFocus = -1;
+
+    // Show/filter suggestions
+    function updateSuggestions() {
+        const value = input.value.trim().toLowerCase();
+        
+        // Clear previous suggestions
+        suggestionsContainer.innerHTML = '';
+        currentFocus = -1;
+
+        if (!value) {
+            suggestionsContainer.classList.add('hidden');
+            return;
+        }
+
+        // Filter names matching the typed text
+        const matches = existingNames.filter(name => 
+            name.toLowerCase().includes(value)
+        );
+
+        if (matches.length === 0) {
+            suggestionsContainer.classList.add('hidden');
+            return;
+        }
+
+        // Generate suggestions HTML
+        matches.forEach((match, index) => {
+            const item = document.createElement('div');
+            item.setAttribute('id', `autocomplete-item-${index}`);
+            item.className = 'px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-800 cursor-pointer transition-colors duration-150';
+            
+            // Highlight matching letters
+            const regex = new RegExp(`(${escapeRegExp(value)})`, 'gi');
+            const highlightedText = match.replace(regex, '<span class="font-bold text-blue-600">$1</span>');
+            item.innerHTML = highlightedText;
+
+            // Click handler
+            item.addEventListener('click', function() {
+                input.value = match;
+                suggestionsContainer.classList.add('hidden');
+            });
+
+            suggestionsContainer.appendChild(item);
+        });
+
+        suggestionsContainer.classList.remove('hidden');
+    }
+
+    // Escape special regex characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Input event listener
+    input.addEventListener('input', updateSuggestions);
+
+    // Focus event listener
+    input.addEventListener('focus', updateSuggestions);
+
+    // Keyboard navigation
+    input.addEventListener('keydown', function(e) {
+        const items = suggestionsContainer.getElementsByTagName('div');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            currentFocus++;
+            addActive(items);
+            e.preventDefault();
+        } else if (e.key === 'ArrowUp') {
+            currentFocus--;
+            addActive(items);
+            e.preventDefault();
+        } else if (e.key === 'Enter') {
+            if (currentFocus > -1) {
+                e.preventDefault(); // Prevent form submission
+                if (items[currentFocus]) {
+                    items[currentFocus].click();
+                }
+            }
+        } else if (e.key === 'Escape') {
+            suggestionsContainer.classList.add('hidden');
+        }
+    });
+
+    function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+
+        items[currentFocus].classList.add('bg-blue-50', 'text-blue-800', 'font-medium');
+        // Scroll into view if out of container scroll viewport
+        items[currentFocus].scrollIntoView({ block: 'nearest' });
+    }
+
+    function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('bg-blue-50', 'text-blue-800', 'font-medium');
+        }
+    }
+
+    // Close suggestions list when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== input && e.target !== suggestionsContainer && !suggestionsContainer.contains(e.target)) {
+            suggestionsContainer.classList.add('hidden');
+        }
+    });
+});
 </script>
 @endsection

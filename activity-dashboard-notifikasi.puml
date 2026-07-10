@@ -1,0 +1,32 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Lihat Dashboard & Notifikasi Stok Menipis
+
+|Admin|
+start
+:Membuka Halaman Dashboard / Klik Menu "Stok Menipis";
+
+|Sistem|
+:Mengambil Data Statistik dari Database:\n- Total Sparepart & Kategori\n- Log Transaksi Masuk/Keluar Hari Ini;
+:Mengambil Data Sparepart Kritis:\nSELECT * FROM spareparts WHERE stok <= stok_minimal;
+
+if (Apakah Ada Sparepart dengan Stok <= Stok Minimal?) then (Ya)
+    :Menghitung Jumlah Item Kritis;
+    :Menampilkan Indikator Jumlah Kritis di Sidebar (Badge Merah);
+    :Menampilkan Widget "Daftar Stok Kritis" di Dashboard;
+else (Tidak)
+    :Menampilkan Indikator Aman;
+endif
+
+:Merender Halaman Dashboard / Halaman Notifikasi;
+
+|Admin|
+:Melihat Ringkasan Statistik & Peringatan Visual;
+stop
+
+@endum

@@ -1,0 +1,18 @@
+@startuml
+autonumber
+actor Admin
+boundary NavbarView
+control AuthController
+
+title Sequence Diagram - Logout Admin
+
+Admin -> NavbarView : Klik tombol "Logout" (di Sidebar)
+NavbarView -> AuthController : GET/POST /logout
+activate AuthController
+
+AuthController -> AuthController : Invalidate / hapus session login admin
+AuthController --> NavbarView : Redirect ke /login dengan flash message
+deactivate AuthController
+
+NavbarView --> Admin : Tampilkan halaman Login + Alert "Berhasil logout"
+@endum

@@ -1,0 +1,35 @@
+@startuml
+autonumber
+actor Admin
+boundary DashboardView
+control DashboardController
+entity SparepartModel
+database Database
+
+title Sequence Diagram - Lihat Dashboard & Notifikasi Stok Menipis
+
+Admin -> DashboardView : Akses Halaman /dashboard
+DashboardView -> DashboardController : GET /dashboard
+activate DashboardController
+
+DashboardController -> Database : Query data ringkasan statistik (Total Kategori, Transaksi Hari Ini)
+activate Database
+Database --> DashboardController : Data ringkasan
+deactivate Database
+
+DashboardController -> SparepartModel : where('stok', '<=', 'stok_minimal')->get()
+activate SparepartModel
+SparepartModel -> Database : SELECT * FROM spareparts WHERE stok <= stok_minimal
+activate Database
+Database --> SparepartModel : Record sparepart kritis
+deactivate Database
+SparepartModel --> DashboardController : Data sparepart kritis
+deactivate SparepartModel
+
+DashboardController -> DashboardController : Hitung total item kritis untuk Badge Menu
+
+DashboardController --> DashboardView : Render /dashboard dengan data statistik & daftar kritis
+deactivate DashboardController
+
+DashboardView --> Admin : Tampilkan grafik, badge notifikasi merah di sidebar, & widget stok kritis
+@endum

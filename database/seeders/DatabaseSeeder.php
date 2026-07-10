@@ -245,6 +245,7 @@ class DatabaseSeeder extends Seeder
                     BarangKeluar::create([
                         'sparepart_id' => $part->id,
                         'jumlah' => $sellQty,
+                        'atas_nama' => $this->getRandomCustomerName(),
                         'tanggal' => $dateString,
                         'keterangan' => $keterangan,
                     ]);
@@ -300,5 +301,18 @@ class DatabaseSeeder extends Seeder
         }
 
         return $desc[array_rand($desc)];
+    }
+
+    /**
+     * Generate a random Indonesian customer name
+     */
+    private function getRandomCustomerName(): string
+    {
+        $names = [
+            'Budi Santoso', 'Joko Susilo', 'Rian Hidayat', 'Dewi Lestari', 'Siti Rahma',
+            'Agus Wijaya', 'Hendra Kurniawan', 'Andi Pratama', 'Eko Prasetyo', 'Rudi Hermawan',
+            'Slamet Riyadi', 'Sutrisno', 'Bambang', 'Wawan', 'Fajar', 'Aditya'
+        ];
+        return $names[array_rand($names)];
     }
 }

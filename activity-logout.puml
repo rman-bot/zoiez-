@@ -1,0 +1,23 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Logout Admin
+
+|Admin|
+start
+:Klik Tombol "Logout" (di Sidebar);
+
+|Sistem|
+:Menghapus Sesi (Session) Aktif;
+:Menampilkan Flash Message\n"Berhasil logout";
+:Mengarahkan (Redirect) ke Halaman Login;
+
+|Admin|
+:Melihat Halaman Login;
+stop
+
+@endum

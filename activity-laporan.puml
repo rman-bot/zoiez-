@@ -1,0 +1,31 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Lihat Laporan (Filter Tanggal)
+
+|Admin|
+start
+:Membuka Halaman "Laporan";
+
+|Sistem|
+:Menampilkan Form Filter Laporan\n(Tanggal Dari, Tanggal Sampai, Jenis Transaksi);
+
+|Admin|
+:Menginput Tanggal Mulai & Tanggal Selesai;
+:Memilih Jenis Transaksi (Semua / Masuk / Keluar);
+:Klik Tombol "Filter";
+
+|Sistem|
+:Melakukan Query Data Transaksi dari Database\nberdasarkan rentang tanggal & jenis transaksi;
+:Menyusun Rekapitulasi Transaksi;
+:Merender Laporan ke dalam Tabel Halaman;
+
+|Admin|
+:Melihat Laporan Transaksi yang Tersaring;
+stop
+
+@endum

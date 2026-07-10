@@ -1,0 +1,64 @@
+@startuml
+skinparam ActivityBackgroundColor #FEFEFE
+skinparam ActivityBorderColor #0066CC
+skinparam NoteBackgroundColor #FFF9E6
+skinparam NoteBorderColor #FFCC00
+skinparam ArrowColor #0066CC
+
+title Activity Diagram - Kelola Sparepart (CRUD)
+
+|Admin|
+start
+:Membuka Halaman "Sparepart";
+
+|Sistem|
+:Menampilkan Tabel Daftar Sparepart;
+
+|Admin|
+if (Pilih Operasi == Tambah Sparepart?) then (Ya)
+    :Klik Tombol "Tambah Sparepart";
+    |Sistem|
+    :Mengambil Data Kategori untuk Dropdown;
+    :Menampilkan Form Tambah Sparepart;
+    |Admin|
+    :Mengisi Kode, Nama, Kategori, Merk,\nSatuan, Harga Beli, Harga Jual,\nStok Awal, & Stok Minimal;
+    :Klik "Simpan";
+    |Sistem|
+    if (Form Valid? (Kode Unik, dll)) then (Tidak)
+        :Tampilkan Pesan Validasi;
+        detach
+    else (Ya)
+        :Simpan Sparepart ke Database;
+    endif
+elseif (Pilih Operasi == Edit Sparepart?) then (Ya)
+    |Admin|
+    :Klik Tombol "Edit" pada Baris Sparepart;
+    |Sistem|
+    :Mengambil Data Kategori untuk Dropdown;
+    :Menampilkan Form Edit dengan Data Terisi;
+    |Admin|
+    :Mengubah Data Detail Sparepart;
+    :Klik "Simpan";
+    |Sistem|
+    if (Form Valid?) then (Tidak)
+        :Tampilkan Pesan Validasi;
+        detach
+    else (Ya)
+        :Perbarui Data Sparepart di Database;
+    endif
+elseif (Pilih Operasi == Hapus Sparepart?) then (Ya)
+    |Admin|
+    :Klik Tombol "Hapus" pada Baris Sparepart;
+    |Sistem|
+    :Menghapus Data Sparepart dari Database\n(Serta Log Barang Masuk/Keluar Terkait);
+else (Lihat Daftar Sparepart)
+    |Sistem|
+    :Menampilkan Daftar Sparepart dengan Badge Stok;
+endif
+
+|Sistem|
+:Tampilkan Flash Message Sukses;
+:Redirect ke Halaman Sparepart;
+stop
+
+@endum
