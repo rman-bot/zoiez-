@@ -277,24 +277,6 @@
         </div>
     </div>
 
-    <!-- Signatures and Date for Print Layout -->
-    <div class="hidden print:block mt-12">
-        <div class="flex justify-between items-center text-sm text-slate-700 px-10">
-            <div class="text-center">
-                <p>Laporan Dibuat Oleh,</p>
-                <div class="h-20"></div>
-                <p class="font-bold underline">Admin Inventaris</p>
-                <p class="text-xs text-slate-500">Zoiez Motor</p>
-            </div>
-            <div class="text-center">
-                <p>Sidoarjo, {{ now()->format('d F Y') }}</p>
-                <p class="mt-0.5">Mengetahui/Menyetujui,</p>
-                <div class="h-20"></div>
-                <p class="font-bold underline">Pemilik / Manajer</p>
-                <p class="text-xs text-slate-500">Zoiez Motor</p>
-            </div>
-        </div>
-    </div>
-
 </div>
 @endsection
+

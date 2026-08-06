@@ -9,14 +9,28 @@ use Illuminate\Support\Facades\DB;
 
 class BarangKeluarController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $outgoingLogs = BarangKeluar::with(['sparepart.kategori'])
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $startDate = $request->input('tanggal_mulai');
+        $endDate = $request->input('tanggal_selesai');
 
-        return view('barang-keluar.index', compact('outgoingLogs'));
+        $query = BarangKeluar::with(['sparepart.kategori'])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('created_at', 'desc');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+
+        $outgoingLogs = $query->get();
+
+        if ($request->input('export') === 'pdf') {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('barang-keluar.pdf', compact('outgoingLogs', 'startDate', 'endDate'));
+            $pdf->setPaper('a4', 'portrait');
+            return $pdf->download('laporan_barang_keluar_' . date('Ymd_His') . '.pdf');
+        }
+
+        return view('barang-keluar.index', compact('outgoingLogs', 'startDate', 'endDate'));
     }
 
     public function create(Request $request)

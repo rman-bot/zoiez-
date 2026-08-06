@@ -294,23 +294,6 @@
         </tbody>
     </table>
 
-    <!-- Signatures -->
-    <table class="signatures">
-        <tr>
-            <td>
-                <p>Laporan Dibuat Oleh,</p>
-                <div class="signature-space"></div>
-                <p><strong>Admin Inventaris</strong></p>
-                <p style="font-size: 8px; color: #777777; margin: 0;">Zoiez Motor</p>
-            </td>
-            <td>
-                <p>Mengetahui / Menyetujui,</p>
-                <div class="signature-space"></div>
-                <p><strong>Pemilik / Manajer</strong></p>
-                <p style="font-size: 8px; color: #777777; margin: 0;">Zoiez Motor</p>
-            </td>
-        </tr>
-    </table>
-
 </body>
 </html>
+
